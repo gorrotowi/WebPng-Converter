@@ -20,7 +20,7 @@ fun FileDialog(
                 }
             }
         }
-        fileDialog.setFilenameFilter { dir, name -> name.endsWith(".webp") }
+        fileDialog.file = "*.jpg;*.jpeg"
         return@AwtWindow fileDialog
     },
     dispose = FileDialog::dispose
