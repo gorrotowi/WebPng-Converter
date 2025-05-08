@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,18 +18,92 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.gorrotowi.webpng.ui_components.FileDropArea
+import com.gorrotowi.webpng.ui_components.RadioGroup
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import webpng.composeapp.generated.resources.Res
 import webpng.composeapp.generated.resources.arrow_right_bold
 import webpng.composeapp.generated.resources.image_search_outline
+import java.awt.FileDialog
+import java.awt.Frame
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        AppContent()
+    WebpToPngContent()
+}
+
+fun selectDirectory(): String? {
+    val fileDialog = FileDialog(null as Frame?, "Select Directory", FileDialog.LOAD)
+    System.setProperty("apple.awt.fileDialogForDirectories", "true")
+    fileDialog.isVisible = true
+
+    val selectedDirectory = fileDialog.directory
+    System.setProperty("apple.awt.fileDialogForDirectories", "false") // Reset the property
+
+    return selectedDirectory
+}
+
+@Composable
+fun WebpToPngContent() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val options = listOf("Wepb to PNG", "Image to Webp")
+
+    val coroutineScope = rememberCoroutineScope()
+    val showFilePicker = remember { mutableStateOf(false) }
+
+    if (showFilePicker.value) {
+        val directory = selectDirectory()
+        println("Selected directory: $directory")
+        showFilePicker.value = false
+    }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+    ) {
+        RadioGroup(options) { index, text ->
+            println("Selected $text")
+            selectedIndex = index
+        }
+
+        Text(
+            "Saved path: ", color = Color.LightGray,
+            modifier = Modifier
+                .clickable {
+                    showFilePicker.value = true
+                })
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FileDropArea(onClicked = {
+//            showFilePicker.value = true
+        }) { fileList ->
+            println("Dropped files: $fileList")
+            if (fileList.isNotEmpty()) {
+                coroutineScope.launch {
+                    fileList.map { file ->
+                        async {
+                            when (selectedIndex) {
+                                0 -> convertImage(
+                                    ImageFormat.PNG,
+                                    file,
+                                )
+
+                                1 -> convertImage(
+                                    ImageFormat.WEBP,
+                                    file,
+                                )
+
+                                else -> null
+                            }
+                        }
+                    }.awaitAll()
+                }
+            }
+        }
+
     }
 }
 
@@ -48,22 +119,21 @@ fun AppContent() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.White),
+            .fillMaxHeight(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (showFilePicker.value) {
-            FileDialog { directory, fileNAme, extension ->
-                coroutineScope.launch {
-                    convertImage(directory, fileNAme, extension)
-                    showFilePicker.value = false
-                }
-            }
+//            FileDialog { directory, fileNAme, extension ->
+//                coroutineScope.launch {
+////                    convertImage(ImageFormat.PNG, directory, fileNAme, extension)
+//                    showFilePicker.value = false
+//                }
+//            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Webp", style = MaterialTheme.typography.h4)
+            Text("Webp", style = MaterialTheme.typography.h4, color = Color.White)
             Box {
                 Image(
                     painterResource(Res.drawable.arrow_right_bold), "",
@@ -74,7 +144,9 @@ fun AppContent() {
         }
 
 
-        FileDropArea {
+        FileDropArea(onClicked = {
+
+        }) {
             println("Dropped files: $it")
         }
         TooltipArea(

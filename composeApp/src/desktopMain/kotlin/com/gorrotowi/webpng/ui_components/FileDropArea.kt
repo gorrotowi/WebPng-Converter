@@ -2,10 +2,7 @@
 
 package com.gorrotowi.webpng.ui_components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -24,7 +21,7 @@ import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FileDropArea(onDroppedFiles :(files: List<File>) -> Unit) {
+fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> Unit) {
     var showTargetBorder by remember { mutableStateOf(false) }
     var fileList by remember { mutableStateOf<List<File>>(emptyList()) }
 
@@ -64,6 +61,7 @@ fun FileDropArea(onDroppedFiles :(files: List<File>) -> Unit) {
                 else
                     Modifier
             )
+            .onClick { onClicked() }
             .dragAndDropTarget(
                 shouldStartDragAndDrop = { true },
                 target = dragAndDropTarget

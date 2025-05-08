@@ -5,7 +5,7 @@ import androidx.compose.ui.window.AwtWindow
 import java.awt.FileDialog
 
 @Composable
-fun FileDialog(
+fun FileDialogSelector(
     onCloseRequest: (directory: String, fileName: String, extension: String) -> Unit
 ) = AwtWindow(
     create = {
