@@ -2,10 +2,13 @@
 
 package com.gorrotowi.webpng.ui_components
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.onClick
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,7 +18,13 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.painterResource
+import webpng.composeapp.generated.resources.Res
+import webpng.composeapp.generated.resources.file_arrow_up_down_outline
 import java.awt.datatransfer.DataFlavor
 import java.io.File
 
@@ -51,22 +60,36 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
             }
         }
     }
-    Box(
+    Column(
         Modifier
-            .size(200.dp)
-            .background(Color.LightGray)
+            .fillMaxSize()
             .then(
                 if (showTargetBorder)
-                    Modifier.border(BorderStroke(3.dp, Color.Black))
+                    Modifier
+                        .border(3.dp, Color.White, shape = RoundedCornerShape(16.dp))
                 else
                     Modifier
+                        .border(1.dp, Color.White, shape = RoundedCornerShape(16.dp))
             )
             .onClick { onClicked() }
             .dragAndDropTarget(
                 shouldStartDragAndDrop = { true },
                 target = dragAndDropTarget
             )
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Drop Here", Modifier.align(Alignment.Center))
+        Image(
+            painterResource(Res.drawable.file_arrow_up_down_outline),
+            contentDescription = "Drop Here",
+            modifier = Modifier.width(120.dp).height(120.dp),
+            colorFilter = ColorFilter.tint(Color.White)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text("Drop Here to Convert", color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
