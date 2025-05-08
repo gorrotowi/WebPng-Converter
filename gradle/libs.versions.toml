@@ -4,6 +4,7 @@ compose-multiplatform = "1.7.0"
 junit = "4.13.2"
 kotlin = "2.1.20"
 kotlinx-coroutines = "1.10.1"
+filekit = "0.10.0-beta03"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -12,6 +13,9 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
 [plugins]
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
