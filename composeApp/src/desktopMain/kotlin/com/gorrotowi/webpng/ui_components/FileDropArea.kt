@@ -20,6 +20,7 @@ import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
@@ -87,9 +88,10 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
             colorFilter = ColorFilter.tint(Color.White)
         )
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Drop Here to Convert", color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
+        Text("Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
         )
     }
 }

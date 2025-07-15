@@ -2,83 +2,121 @@
 
 package com.gorrotowi.webpng
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gorrotowi.webpng.ui_components.FileDropArea
 import com.gorrotowi.webpng.ui_components.RadioGroup
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.path
+import io.github.vinceglb.filekit.pictureDir
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
-import webpng.composeapp.generated.resources.Res
-import webpng.composeapp.generated.resources.arrow_right_bold
-import webpng.composeapp.generated.resources.image_search_outline
-import java.awt.FileDialog
-import java.awt.Frame
+import java.awt.Desktop
+import java.io.File
 
 @Composable
 fun App() {
+    FileKit.init("WebPng")
     WebpToPngContent()
-}
-
-fun selectDirectory(): String? {
-    val fileDialog = FileDialog(null as Frame?, "Select Directory", FileDialog.LOAD)
-    System.setProperty("apple.awt.fileDialogForDirectories", "true")
-    fileDialog.isVisible = true
-
-    val selectedDirectory = fileDialog.directory
-    System.setProperty("apple.awt.fileDialogForDirectories", "false") // Reset the property
-
-    return selectedDirectory
 }
 
 @Composable
 fun WebpToPngContent() {
+
+    val cachePath = with(FileKit.pictureDir.path) {
+        if (isNullOrEmpty()) System.getProperty("user.home") else this
+    }
+
+    val pathToSaveFiles = remember { mutableStateOf(cachePath) }
+
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val options = listOf("Wepb to PNG", "Image to Webp")
+    val options = listOf("PNG", "Webp")
 
     val coroutineScope = rememberCoroutineScope()
-    val showFilePicker = remember { mutableStateOf(false) }
+    val directorySelectorLauncher =
+        rememberDirectoryPickerLauncher(title = "Select directory to save files") { directory ->
+            directory?.path?.let { pathToSaveFiles.value = it }
+        }
 
-    if (showFilePicker.value) {
-        val directory = selectDirectory()
-        println("Selected directory: $directory")
-        showFilePicker.value = false
+    val selectFilesLauncher = rememberFilePickerLauncher(
+        title = "Select files to convert",
+        type = FileKitType.Image,
+        mode = FileKitMode.Multiple()
+    ) { files ->
+        coroutineScope.launch {
+            files?.map { file ->
+                async {
+                    val format = when (selectedIndex) {
+                        0 -> ImageFormat.PNG
+                        1 -> ImageFormat.WEBP
+                        else -> ImageFormat.PNG
+                    }
+                    convertImage(format, file.file)
+                }
+            }?.awaitAll()
+            Desktop.getDesktop().open(File(pathToSaveFiles.value))
+        }
+
     }
 
     Column(
         modifier = Modifier
             .padding(16.dp)
     ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    directorySelectorLauncher.launch()
+                },
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White),
+                border = BorderStroke(1.dp, Color.White)
+            ) {
+                Text("Select Directory")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = pathToSaveFiles.value, color = Color.LightGray,
+                fontWeight = FontWeight.W600,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.White)
+                    .padding(8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Convert Image to:", color = Color.LightGray)
+
         RadioGroup(options) { index, text ->
             println("Selected $text")
             selectedIndex = index
         }
 
-        Text(
-            "Saved path: ", color = Color.LightGray,
-            modifier = Modifier
-                .clickable {
-                    showFilePicker.value = true
-                })
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         FileDropArea(onClicked = {
-//            showFilePicker.value = true
+            selectFilesLauncher.launch()
         }) { fileList ->
             println("Dropped files: $fileList")
             if (fileList.isNotEmpty()) {
@@ -103,83 +141,5 @@ fun WebpToPngContent() {
                 }
             }
         }
-
-    }
-}
-
-@Composable
-fun AppContent() {
-    val coroutineScope = rememberCoroutineScope()
-    val showFilePicker = remember { mutableStateOf(false) }
-    val stroke = Stroke(
-        width = 2f,
-        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (showFilePicker.value) {
-//            FileDialog { directory, fileNAme, extension ->
-//                coroutineScope.launch {
-////                    convertImage(ImageFormat.PNG, directory, fileNAme, extension)
-//                    showFilePicker.value = false
-//                }
-//            }
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Webp", style = MaterialTheme.typography.h4, color = Color.White)
-            Box {
-                Image(
-                    painterResource(Res.drawable.arrow_right_bold), "",
-                    modifier = Modifier.width(64.dp).height(64.dp),
-                )
-            }
-            Text("PNG", style = MaterialTheme.typography.h4)
-        }
-
-
-        FileDropArea(onClicked = {
-
-        }) {
-            println("Dropped files: $it")
-        }
-        TooltipArea(
-            tooltip = {
-                Text("Select image to convert")
-            },
-            content = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clickable {
-                            showFilePicker.value = true
-                        }
-                        .drawBehind {
-                            drawRoundRect(
-                                color = Color.Black,
-                                style = stroke,
-                                cornerRadius = CornerRadius(16.dp.toPx())
-                            )
-                        }
-                        .clip(shape = RoundedCornerShape(16.dp))
-                        .background(Color(0xFFccd9de))
-                        .padding(16.dp)
-                ) {
-                    Image(
-                        painterResource(Res.drawable.image_search_outline),
-                        contentDescription = "Select image to convert",
-                        modifier = Modifier.width(200.dp).height(200.dp),
-                    )
-                    Text(
-                        "Select image to convert", style = MaterialTheme.typography.h4
-                    )
-                }
-            })
     }
 }

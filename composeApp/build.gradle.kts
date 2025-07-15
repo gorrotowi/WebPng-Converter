@@ -24,6 +24,9 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation("com.squareup.okio:okio:$okioVersion")
+            implementation(libs.filekit.core)
+            implementation(libs.filekit.dialogs)
+            implementation(libs.filekit.dialogs.compose)
         }
         desktopMain.dependencies {
             implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")

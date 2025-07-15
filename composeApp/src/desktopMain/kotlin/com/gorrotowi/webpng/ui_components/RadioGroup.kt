@@ -1,7 +1,10 @@
 package com.gorrotowi.webpng.ui_components
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.RadioButton
@@ -19,13 +22,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun RadioGroup(options: List<String>, onSelected: (Int, String) -> Unit) {
     val (selectedOption, onSelectedOption) = remember { mutableStateOf(options[0]) }
-    Column(
+    Row(
         modifier = Modifier
             .selectableGroup()
     ) {
         options.forEachIndexed { index: Int, text: String ->
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
                     .height(56.dp)
                     .selectable(
                         selected = (text == selectedOption),
