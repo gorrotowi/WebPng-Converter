@@ -56,9 +56,12 @@ fun MascotFace(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.size(60.dp, 30.dp)) {
         // Ojos
         val eyeRadius = 5.dp.toPx()
+        val eyeSparkRadius = 2.dp.toPx()
         val eyeY = size.height * 0.3f
         drawCircle(FaceColor, radius = eyeRadius, center = Offset(size.width * 0.25f, eyeY))
+        drawCircle(Color.White, radius = eyeSparkRadius, center = Offset(size.width * 0.22f, eyeY * 0.85f))
         drawCircle(FaceColor, radius = eyeRadius, center = Offset(size.width * 0.75f, eyeY))
+        drawCircle(Color.White, radius = eyeSparkRadius, center = Offset(size.width * 0.72f, eyeY * 0.85f))
 
         // Boca (un pequeño arco)
         val mouthPadding = size.width * 0.35f
@@ -72,6 +75,12 @@ fun MascotFace(modifier: Modifier = Modifier) {
             style = Stroke(width = 3.dp.toPx())
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewMascotFace(){
+    MascotFace()
 }
 
 @Composable
