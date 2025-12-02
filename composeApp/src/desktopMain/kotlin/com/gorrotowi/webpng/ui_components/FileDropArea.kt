@@ -4,7 +4,6 @@ package com.gorrotowi.webpng.ui_components
 
 import WeppyMascot
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
@@ -19,14 +18,10 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.painterResource
-import webpng.composeapp.generated.resources.Res
-import webpng.composeapp.generated.resources.file_arrow_up_down_outline
 import java.awt.datatransfer.DataFlavor
 import java.io.File
 
@@ -62,7 +57,7 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
             }
         }
     }
-    Column(
+    Row(
         Modifier
             .fillMaxSize()
             .then(
@@ -79,19 +74,20 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
                 target = dragAndDropTarget
             )
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-//        Image(
-//            painterResource(Res.drawable.file_arrow_up_down_outline),
-//            contentDescription = "Drop Here",
-//            modifier = Modifier.width(120.dp).height(120.dp),
-//            colorFilter = ColorFilter.tint(Color.White)
-//        )
-        WeppyMascot()
+        Box(
+            modifier = Modifier
+                .width(120.dp)
+                .height(120.dp)
+        ) {
+            WeppyMascot()
+        }
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
-            fontSize = 14.sp,
+        Text(
+            "Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
+            fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )

@@ -123,18 +123,13 @@ fun WebpToPngContent() {
                 coroutineScope.launch {
                     fileList.map { file ->
                         async {
-                            when (selectedIndex) {
-                                0 -> convertImage(
-                                    ImageFormat.PNG,
-                                    file,
-                                )
-
-                                1 -> convertImage(
-                                    ImageFormat.WEBP,
-                                    file,
-                                )
-
+                            val imageFormat = when (selectedIndex) {
+                                0 -> ImageFormat.PNG
+                                1 -> ImageFormat.WEBP
                                 else -> null
+                            }
+                            imageFormat?.let {
+                                convertImage(it, file)
                             }
                         }
                     }.awaitAll()

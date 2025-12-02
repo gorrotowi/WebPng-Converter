@@ -162,9 +162,9 @@ fun WeppyMascot() {
     val interactionSource = remember { MutableInteractionSource() }
 
     // --- CONSTANTES DE POSICIÓN Y REBOTE ---
-    val topPos = 0.dp
-    val bottomPos = 40.dp
-    val midPos = 20.dp
+    val topPos = (-20).dp
+    val bottomPos = 20.dp
+    val midPos = 0.dp
 
     // El efecto acordeón: los extremos rebotan más.
     val outerBounceMax = 24.dp
