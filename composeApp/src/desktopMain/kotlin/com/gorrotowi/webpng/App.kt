@@ -72,7 +72,7 @@ fun WebpToPngContent() {
                                                 1 -> ImageFormat.WEBP
                                                 else -> ImageFormat.PNG
                                             }
-                                    convertImage(format, file.file)
+                                    convertImage(format, file.file, pathToSaveFiles.value)
                                 }
                             }
                             ?.awaitAll()
@@ -127,7 +127,9 @@ fun WebpToPngContent() {
                                                 1 -> ImageFormat.WEBP
                                                 else -> null
                                             }
-                                    imageFormat?.let { convertImage(it, file) }
+                                    imageFormat?.let {
+                                        convertImage(it, file, pathToSaveFiles.value)
+                                    }
                                 }
                             }
                             .awaitAll()
