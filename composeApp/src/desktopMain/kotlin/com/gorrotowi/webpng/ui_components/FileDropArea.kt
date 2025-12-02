@@ -27,7 +27,12 @@ import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> Unit) {
+fun FileDropArea(
+    isMascotSwapped: Boolean,
+    onMascotClick: (Boolean) -> Unit,
+    onClicked: () -> Unit,
+    onDroppedFiles: (files: List<File>) -> Unit
+) {
     var showTargetBorder by remember { mutableStateOf(false) }
     var fileList by remember { mutableStateOf<List<File>>(emptyList()) }
 
@@ -44,52 +49,57 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
             }
 
             override fun onDrop(event: DragAndDropEvent): Boolean {
-                fileList = event.awtTransferable.let {
-                    if (it.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                        @Suppress("UNCHECKED_CAST")
-                        (it.getTransferData(DataFlavor.javaFileListFlavor) as? List<File>)?.toList() ?: emptyList()
-                    } else {
-                        emptyList()
-                    }
-                }
+                fileList =
+                        event.awtTransferable.let {
+                            if (it.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                                @Suppress("UNCHECKED_CAST")
+                                (it.getTransferData(DataFlavor.javaFileListFlavor) as? List<File>)
+                                        ?.toList()
+                                        ?: emptyList()
+                            } else {
+                                emptyList()
+                            }
+                        }
                 onDroppedFiles(fileList)
                 return true
             }
         }
     }
     Row(
-        Modifier
-            .fillMaxSize()
-            .then(
-                if (showTargetBorder)
-                    Modifier
-                        .border(3.dp, Color.White, shape = RoundedCornerShape(16.dp))
-                else
-                    Modifier
-                        .border(1.dp, Color.White, shape = RoundedCornerShape(16.dp))
-            )
-            .onClick { onClicked() }
-            .dragAndDropTarget(
-                shouldStartDragAndDrop = { true },
-                target = dragAndDropTarget
-            )
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+            Modifier.fillMaxSize()
+                    .then(
+                            if (showTargetBorder)
+                                    Modifier.border(
+                                            3.dp,
+                                            Color.White,
+                                            shape = RoundedCornerShape(16.dp)
+                                    )
+                            else
+                                    Modifier.border(
+                                            1.dp,
+                                            Color.White,
+                                            shape = RoundedCornerShape(16.dp)
+                                    )
+                    )
+                    .onClick { onClicked() }
+                    .dragAndDropTarget(
+                            shouldStartDragAndDrop = { true },
+                            target = dragAndDropTarget
+                    )
+                    .padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .width(120.dp)
-                .height(120.dp)
-        ) {
-            WeppyMascot()
+        Box(modifier = Modifier.width(120.dp).height(120.dp)) {
+            WeppyMascot(isSwapped = isMascotSwapped, onSwap = onMascotClick)
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            "Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
+                "Drop Here to Convert\nOr\nClick to Select Files",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
         )
     }
 }
