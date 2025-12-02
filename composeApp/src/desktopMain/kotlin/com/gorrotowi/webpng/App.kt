@@ -41,9 +41,10 @@ fun App() {
 fun WebpToPngContent() {
 
     val cachePath =
-            with(FileKit.pictureDir.path) {
-                if (isNullOrEmpty()) System.getProperty("user.home") else this
-            }
+            SettingsManager.getSavePath()
+                    ?: with(FileKit.pictureDir.path) {
+                        if (isNullOrEmpty()) System.getProperty("user.home") else this
+                    }
 
     val pathToSaveFiles = remember { mutableStateOf(cachePath) }
 
@@ -53,7 +54,10 @@ fun WebpToPngContent() {
     val coroutineScope = rememberCoroutineScope()
     val directorySelectorLauncher =
             rememberDirectoryPickerLauncher(title = "Select directory to save files") { directory ->
-                directory?.path?.let { pathToSaveFiles.value = it }
+                directory?.path?.let {
+                    pathToSaveFiles.value = it
+                    SettingsManager.setSavePath(it)
+                }
             }
 
     val selectFilesLauncher =
@@ -72,7 +76,7 @@ fun WebpToPngContent() {
                                                 1 -> ImageFormat.WEBP
                                                 else -> ImageFormat.PNG
                                             }
-                                    convertImage(format, file.file)
+                                    convertImage(format, file.file, pathToSaveFiles.value)
                                 }
                             }
                             ?.awaitAll()
@@ -127,7 +131,9 @@ fun WebpToPngContent() {
                                                 1 -> ImageFormat.WEBP
                                                 else -> null
                                             }
-                                    imageFormat?.let { convertImage(it, file) }
+                                    imageFormat?.let {
+                                        convertImage(it, file, pathToSaveFiles.value)
+                                    }
                                 }
                             }
                             .awaitAll()
