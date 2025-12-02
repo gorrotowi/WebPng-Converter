@@ -2,6 +2,7 @@
 
 package com.gorrotowi.webpng.ui_components
 
+import WeppyMascot
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -81,12 +82,13 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painterResource(Res.drawable.file_arrow_up_down_outline),
-            contentDescription = "Drop Here",
-            modifier = Modifier.width(120.dp).height(120.dp),
-            colorFilter = ColorFilter.tint(Color.White)
-        )
+//        Image(
+//            painterResource(Res.drawable.file_arrow_up_down_outline),
+//            contentDescription = "Drop Here",
+//            modifier = Modifier.width(120.dp).height(120.dp),
+//            colorFilter = ColorFilter.tint(Color.White)
+//        )
+        WeppyMascot()
         Spacer(modifier = Modifier.height(24.dp))
         Text("Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
             fontSize = 14.sp,
