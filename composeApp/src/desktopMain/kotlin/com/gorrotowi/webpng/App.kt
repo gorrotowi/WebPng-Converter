@@ -25,11 +25,11 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.pictureDir
+import java.awt.Desktop
+import java.io.File
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import java.awt.Desktop
-import java.io.File
 
 @Composable
 fun App() {
@@ -40,9 +40,10 @@ fun App() {
 @Composable
 fun WebpToPngContent() {
 
-    val cachePath = with(FileKit.pictureDir.path) {
-        if (isNullOrEmpty()) System.getProperty("user.home") else this
-    }
+    val cachePath =
+            with(FileKit.pictureDir.path) {
+                if (isNullOrEmpty()) System.getProperty("user.home") else this
+            }
 
     val pathToSaveFiles = remember { mutableStateOf(cachePath) }
 
@@ -51,58 +52,52 @@ fun WebpToPngContent() {
 
     val coroutineScope = rememberCoroutineScope()
     val directorySelectorLauncher =
-        rememberDirectoryPickerLauncher(title = "Select directory to save files") { directory ->
-            directory?.path?.let { pathToSaveFiles.value = it }
-        }
-
-    val selectFilesLauncher = rememberFilePickerLauncher(
-        title = "Select files to convert",
-        type = FileKitType.Image,
-        mode = FileKitMode.Multiple()
-    ) { files ->
-        coroutineScope.launch {
-            files?.map { file ->
-                async {
-                    val format = when (selectedIndex) {
-                        0 -> ImageFormat.PNG
-                        1 -> ImageFormat.WEBP
-                        else -> ImageFormat.PNG
-                    }
-                    convertImage(format, file.file)
-                }
-            }?.awaitAll()
-            Desktop.getDesktop().open(File(pathToSaveFiles.value))
-        }
-
-    }
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-    ) {
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    directorySelectorLauncher.launch()
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White),
-                border = BorderStroke(1.dp, Color.White)
-            ) {
-                Text("Select Directory")
+            rememberDirectoryPickerLauncher(title = "Select directory to save files") { directory ->
+                directory?.path?.let { pathToSaveFiles.value = it }
             }
+
+    val selectFilesLauncher =
+            rememberFilePickerLauncher(
+                    title = "Select files to convert",
+                    type = FileKitType.Image,
+                    mode = FileKitMode.Multiple()
+            ) { files ->
+                coroutineScope.launch {
+                    files
+                            ?.map { file ->
+                                async {
+                                    val format =
+                                            when (selectedIndex) {
+                                                0 -> ImageFormat.PNG
+                                                1 -> ImageFormat.WEBP
+                                                else -> ImageFormat.PNG
+                                            }
+                                    convertImage(format, file.file)
+                                }
+                            }
+                            ?.awaitAll()
+                    Desktop.getDesktop().open(File(pathToSaveFiles.value))
+                }
+            }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                    onClick = { directorySelectorLauncher.launch() },
+                    shape = RoundedCornerShape(16.dp),
+                    colors =
+                            ButtonDefaults.buttonColors(
+                                    backgroundColor = Color.Black,
+                                    contentColor = Color.White
+                            ),
+                    border = BorderStroke(1.dp, Color.White)
+            ) { Text("Select Directory") }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = pathToSaveFiles.value, color = Color.LightGray,
-                fontWeight = FontWeight.W600,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color.White)
-                    .padding(8.dp)
+                    text = pathToSaveFiles.value,
+                    color = Color.LightGray,
+                    fontWeight = FontWeight.W600,
+                    modifier = Modifier.fillMaxWidth().border(1.dp, Color.White).padding(8.dp)
             )
         }
 
@@ -110,34 +105,32 @@ fun WebpToPngContent() {
 
         Text("Convert Image to:", color = Color.LightGray)
 
-        RadioGroup(options) { index, text ->
+        RadioGroup(options, selectedIndex) { index, text ->
             println("Selected $text")
             selectedIndex = index
         }
 
-        FileDropArea(onClicked = {
-            selectFilesLauncher.launch()
-        }) { fileList ->
+        FileDropArea(
+                isMascotSwapped = selectedIndex == 1,
+                onMascotClick = { selectedIndex = if (it) 1 else 0 },
+                onClicked = { selectFilesLauncher.launch() }
+        ) { fileList ->
             println("Dropped files: $fileList")
             if (fileList.isNotEmpty()) {
                 coroutineScope.launch {
-                    fileList.map { file ->
-                        async {
-                            when (selectedIndex) {
-                                0 -> convertImage(
-                                    ImageFormat.PNG,
-                                    file,
-                                )
-
-                                1 -> convertImage(
-                                    ImageFormat.WEBP,
-                                    file,
-                                )
-
-                                else -> null
+                    fileList
+                            .map { file ->
+                                async {
+                                    val imageFormat =
+                                            when (selectedIndex) {
+                                                0 -> ImageFormat.PNG
+                                                1 -> ImageFormat.WEBP
+                                                else -> null
+                                            }
+                                    imageFormat?.let { convertImage(it, file) }
+                                }
                             }
-                        }
-                    }.awaitAll()
+                            .awaitAll()
                 }
             }
         }

@@ -2,8 +2,8 @@
 
 package com.gorrotowi.webpng.ui_components
 
+import WeppyMascot
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
@@ -18,20 +18,21 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.awtTransferable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.painterResource
-import webpng.composeapp.generated.resources.Res
-import webpng.composeapp.generated.resources.file_arrow_up_down_outline
 import java.awt.datatransfer.DataFlavor
 import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> Unit) {
+fun FileDropArea(
+    isMascotSwapped: Boolean,
+    onMascotClick: (Boolean) -> Unit,
+    onClicked: () -> Unit,
+    onDroppedFiles: (files: List<File>) -> Unit
+) {
     var showTargetBorder by remember { mutableStateOf(false) }
     var fileList by remember { mutableStateOf<List<File>>(emptyList()) }
 
@@ -48,50 +49,57 @@ fun FileDropArea(onClicked: () -> Unit, onDroppedFiles: (files: List<File>) -> U
             }
 
             override fun onDrop(event: DragAndDropEvent): Boolean {
-                fileList = event.awtTransferable.let {
-                    if (it.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                        @Suppress("UNCHECKED_CAST")
-                        (it.getTransferData(DataFlavor.javaFileListFlavor) as? List<File>)?.toList() ?: emptyList()
-                    } else {
-                        emptyList()
-                    }
-                }
+                fileList =
+                        event.awtTransferable.let {
+                            if (it.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                                @Suppress("UNCHECKED_CAST")
+                                (it.getTransferData(DataFlavor.javaFileListFlavor) as? List<File>)
+                                        ?.toList()
+                                        ?: emptyList()
+                            } else {
+                                emptyList()
+                            }
+                        }
                 onDroppedFiles(fileList)
                 return true
             }
         }
     }
-    Column(
-        Modifier
-            .fillMaxSize()
-            .then(
-                if (showTargetBorder)
-                    Modifier
-                        .border(3.dp, Color.White, shape = RoundedCornerShape(16.dp))
-                else
-                    Modifier
-                        .border(1.dp, Color.White, shape = RoundedCornerShape(16.dp))
-            )
-            .onClick { onClicked() }
-            .dragAndDropTarget(
-                shouldStartDragAndDrop = { true },
-                target = dragAndDropTarget
-            )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Row(
+            Modifier.fillMaxSize()
+                    .then(
+                            if (showTargetBorder)
+                                    Modifier.border(
+                                            3.dp,
+                                            Color.White,
+                                            shape = RoundedCornerShape(16.dp)
+                                    )
+                            else
+                                    Modifier.border(
+                                            1.dp,
+                                            Color.White,
+                                            shape = RoundedCornerShape(16.dp)
+                                    )
+                    )
+                    .onClick { onClicked() }
+                    .dragAndDropTarget(
+                            shouldStartDragAndDrop = { true },
+                            target = dragAndDropTarget
+                    )
+                    .padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painterResource(Res.drawable.file_arrow_up_down_outline),
-            contentDescription = "Drop Here",
-            modifier = Modifier.width(120.dp).height(120.dp),
-            colorFilter = ColorFilter.tint(Color.White)
-        )
+        Box(modifier = Modifier.width(120.dp).height(120.dp)) {
+            WeppyMascot(isSwapped = isMascotSwapped, onSwap = onMascotClick)
+        }
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Drop Here to Convert\nOr\nClick to Select Files", color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
+        Text(
+                "Drop Here to Convert\nOr\nClick to Select Files",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
         )
     }
 }
